@@ -195,7 +195,7 @@ All mutation endpoints use Zod validation, session-cookie auth, and return `{ ok
 | `POST` | `/api/subscription/checkout` | Create Stripe checkout (or mock) |
 | `POST` | `/api/donations` | One-off donation |
 | `GET` | `/api/draws` | Published draws |
-| `PATCH` | `/api/winners/:id/proof` | Upload proof URL for a pending winner |
+| `POST` | `/api/winners/:id/proof` | Upload proof URL for a pending winner |
 
 ### Admin-only (`requireRole("ADMIN")`)
 

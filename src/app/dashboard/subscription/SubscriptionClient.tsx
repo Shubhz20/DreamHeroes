@@ -49,6 +49,12 @@ export default function SubscriptionClient({
       setError(data.error ?? "Failed");
       return;
     }
+    // If Stripe is configured, the checkout endpoint returns a hosted
+    // Checkout URL — hand the browser off to Stripe to handle card entry.
+    if (data?.data?.url) {
+      window.location.href = data.data.url;
+      return;
+    }
     startTransition(() => router.refresh());
   }
 

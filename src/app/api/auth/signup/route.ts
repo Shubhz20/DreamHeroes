@@ -15,6 +15,9 @@ import { SignupSchema } from "@/lib/validators";
 import { isStripeConfigured } from "@/lib/stripe";
 import { sendEmail } from "@/lib/email";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export const POST = handle(async (req: NextRequest) => {
   const body = await req.json();
   const data = SignupSchema.parse(body);

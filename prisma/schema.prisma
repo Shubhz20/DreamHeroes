@@ -11,7 +11,11 @@
 // -----------------------------------------------------------------------------
 
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  // "native" covers local dev; the linux targets cover Vercel serverless/edge
+  // and standard Node.js docker runtimes. Vercel will run `prisma generate`
+  // during its build step and fetch the correct binary automatically.
+  binaryTargets = ["native", "rhel-openssl-3.0.x", "linux-musl-openssl-3.0.x", "linux-musl-arm64-openssl-3.0.x"]
 }
 
 datasource db {

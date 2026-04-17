@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
-import { requireRole, getCurrentUser, isSubscriptionActive } from "@/lib/auth";
+import { requireRole, getCurrentUser, requireActiveSubscription } from "@/lib/auth";
 import { addScore, getUserScores } from "@/lib/scores";
-import { handle, ok, err } from "@/lib/api";
+import { handle, ok } from "@/lib/api";
 import { ScoreSchema } from "@/lib/validators";
 
 export const GET = handle(async () => {
@@ -11,13 +11,15 @@ export const GET = handle(async () => {
   return ok({ scores });
 });
 
+/**
+ * Logging scores requires an active subscription — `requireActiveSubscription`
+ * both *reads* status from the DB and *writes back* a LAPSED transition
+ * whenever it detects a stale ACTIVE row past its `currentPeriodEnd`.
+ * That's our real-time subscription status check.
+ */
 export const POST = handle(async (req: NextRequest) => {
-  await requireRole("USER");
-  const user = await getCurrentUser();
-  if (!isSubscriptionActive(user!.subscription)) {
-    return err("An active subscription is required to log scores", 402);
-  }
+  const { session } = await requireActiveSubscription();
   const data = ScoreSchema.parse(await req.json());
-  const created = await addScore(user!.id, data.value, data.playedAt);
+  const created = await addScore(session.userId, data.value, data.playedAt);
   return ok({ score: created });
 });

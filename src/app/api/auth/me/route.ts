@@ -1,6 +1,9 @@
 import { getCurrentUser, isSubscriptionActive } from "@/lib/auth";
 import { handle, ok } from "@/lib/api";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export const GET = handle(async () => {
   const user = await getCurrentUser();
   if (!user) return ok(null);

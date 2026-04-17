@@ -138,3 +138,31 @@ export function isSubscriptionActive(sub: { status: string; currentPeriodEnd: Da
   if (sub.status !== "ACTIVE") return false;
   return new Date(sub.currentPeriodEnd).getTime() > Date.now();
 }
+
+/**
+ * Real-time subscription check for authenticated requests that require an
+ * active paid plan (e.g. adding a score, buying into the monthly draw).
+ *
+ * We also lazy-update the DB status from ACTIVE→LAPSED here when we observe
+ * that `currentPeriodEnd` has passed — this means even if a Stripe webhook
+ * somehow hasn't fired, the user is correctly locked out on their very next
+ * request, and the status reflects reality in our own tables.
+ */
+export async function requireActiveSubscription() {
+  const session = await getSession();
+  if (!session) throw new AuthError("Not signed in", 401);
+  const sub = await db.subscription.findUnique({ where: { userId: session.userId } });
+  if (!sub) throw new AuthError("Subscription required", 402);
+  if (sub.status === "ACTIVE" && new Date(sub.currentPeriodEnd).getTime() <= Date.now()) {
+    // Auto-lapse stale ACTIVE rows on the fly.
+    await db.subscription.update({
+      where: { id: sub.id },
+      data: { status: "LAPSED" },
+    });
+    throw new AuthError("Subscription has lapsed — please renew", 402);
+  }
+  if (sub.status !== "ACTIVE") {
+    throw new AuthError(`Subscription is ${sub.status} — please reactivate`, 402);
+  }
+  return { session, sub };
+}

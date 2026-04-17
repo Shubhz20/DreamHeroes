@@ -4,6 +4,9 @@ import { verifyPassword, createSessionToken, setSessionCookie } from "@/lib/auth
 import { handle, ok, err } from "@/lib/api";
 import { LoginSchema } from "@/lib/validators";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export const POST = handle(async (req: NextRequest) => {
   const data = LoginSchema.parse(await req.json());
   const user = await db.user.findUnique({ where: { email: data.email } });

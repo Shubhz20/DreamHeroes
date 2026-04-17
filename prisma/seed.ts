@@ -84,7 +84,7 @@ async function main() {
       description:
         "Veterans transitioning out of active service receive peer-led golf and mindfulness programmes proven to reduce PTSD symptoms.",
       imageUrl:
-        "https://images.unsplash.com/photo-1589828747350-5b98dff2a71c?w=800&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1541872703-74c5e44368f4?w=800&auto=format&fit=crop",
       category: "Veterans",
     },
   ];
