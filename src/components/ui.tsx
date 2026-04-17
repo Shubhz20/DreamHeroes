@@ -2,6 +2,17 @@
 import Link from "next/link";
 import { cn } from "@/lib/format";
 
+type ButtonOwnProps = {
+  children: React.ReactNode;
+  as?: "button" | "link";
+  variant?: "primary" | "secondary" | "ghost" | "danger";
+  size?: "sm" | "md" | "lg";
+  href?: string;
+  type?: "button" | "submit" | "reset";
+  className?: string;
+  disabled?: boolean;
+};
+
 export function Button({
   children,
   as = "button",
@@ -10,16 +21,10 @@ export function Button({
   href,
   type,
   className,
+  disabled,
   ...rest
-}: {
-  children: React.ReactNode;
-  as?: "button" | "link";
-  variant?: "primary" | "secondary" | "ghost" | "danger";
-  size?: "sm" | "md" | "lg";
-  href?: string;
-  type?: "button" | "submit" | "reset";
-  className?: string;
-} & React.HTMLAttributes<HTMLButtonElement | HTMLAnchorElement>) {
+}: ButtonOwnProps &
+  Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, keyof ButtonOwnProps>) {
   const base =
     "inline-flex items-center justify-center font-semibold rounded-full transition-all active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed";
   const sizes = {
@@ -45,7 +50,12 @@ export function Button({
     );
   }
   return (
-    <button type={type ?? "button"} className={classes} {...(rest as any)}>
+    <button
+      type={type ?? "button"}
+      className={classes}
+      disabled={disabled}
+      {...(rest as any)}
+    >
       {children}
     </button>
   );
