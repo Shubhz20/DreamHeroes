@@ -4,6 +4,9 @@ import { requireRole } from "@/lib/auth";
 import { handle, ok, err } from "@/lib/api";
 import { WinnerVerifySchema } from "@/lib/validators";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 /**
  * PATCH /api/admin/winners/:id
  *   body: { verificationStatus: APPROVED|REJECTED, reviewNote? }

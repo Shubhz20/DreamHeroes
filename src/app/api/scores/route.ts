@@ -4,6 +4,9 @@ import { addScore, getUserScores } from "@/lib/scores";
 import { handle, ok } from "@/lib/api";
 import { ScoreSchema } from "@/lib/validators";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export const GET = handle(async () => {
   await requireRole("USER");
   const user = await getCurrentUser();

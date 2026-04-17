@@ -10,6 +10,9 @@ import { getCurrentUser, requireRole } from "@/lib/auth";
 import { handle, ok, err } from "@/lib/api";
 import { WinnerProofSchema } from "@/lib/validators";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export const POST = handle(async (req: NextRequest, ctx: { params: { id: string } }) => {
   await requireRole("USER");
   const user = await getCurrentUser();

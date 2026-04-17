@@ -4,6 +4,9 @@ import { requireRole } from "@/lib/auth";
 import { handle, ok } from "@/lib/api";
 import { AdminCharitySchema } from "@/lib/validators";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export const GET = handle(async () => {
   await requireRole("ADMIN");
   const charities = await db.charity.findMany({

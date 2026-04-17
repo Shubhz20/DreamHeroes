@@ -2,6 +2,9 @@ import { db } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
 import { handle, ok } from "@/lib/api";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export const GET = handle(async () => {
   await requireRole("ADMIN");
   const draws = await db.draw.findMany({

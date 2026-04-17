@@ -3,6 +3,9 @@ import { db } from "@/lib/db";
 import { requireRole } from "@/lib/auth";
 import { handle, ok, err } from "@/lib/api";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 /** PATCH a user: name, role, charityId, charityPct, subscription fields. */
 export const PATCH = handle(async (req: NextRequest, ctx: { params: { id: string } }) => {
   await requireRole("ADMIN");

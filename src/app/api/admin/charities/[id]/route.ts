@@ -4,6 +4,9 @@ import { requireRole } from "@/lib/auth";
 import { handle, ok } from "@/lib/api";
 import { AdminCharitySchema } from "@/lib/validators";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export const PATCH = handle(async (req: NextRequest, ctx: { params: { id: string } }) => {
   await requireRole("ADMIN");
   const data = AdminCharitySchema.partial().parse(await req.json());

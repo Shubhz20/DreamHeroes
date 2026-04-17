@@ -7,6 +7,9 @@ import { db } from "@/lib/db";
 import { sendEmail } from "@/lib/email";
 import { formatMoney, formatMonthYear } from "@/lib/format";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 /**
  * POST /api/admin/draws/publish — run a fresh simulation (or re-use one
  * supplied by the client) and persist it as the canonical draw for the

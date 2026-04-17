@@ -10,6 +10,9 @@ import { addScore } from "@/lib/scores";
 import { handle, ok } from "@/lib/api";
 import { ScoreSchema } from "@/lib/validators";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export const GET = handle(async (_req, ctx: { params: { id: string } }) => {
   await requireRole("ADMIN");
   const scores = await db.score.findMany({

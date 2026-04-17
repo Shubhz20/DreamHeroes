@@ -4,6 +4,9 @@ import { handle, ok } from "@/lib/api";
 import { simulate } from "@/lib/draw-engine";
 import { DrawRunSchema } from "@/lib/validators";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 /** POST /api/admin/draws/simulate — dry-run a draw (no persistence). */
 export const POST = handle(async (req: NextRequest) => {
   await requireRole("ADMIN");

@@ -20,6 +20,9 @@ import { handle, ok, err } from "@/lib/api";
 import { SubscriptionCheckoutSchema } from "@/lib/validators";
 import { isStripeConfigured, priceIdFor, stripe } from "@/lib/stripe";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export const POST = handle(async (req: NextRequest) => {
   await requireRole("USER");
   const user = await getCurrentUser();

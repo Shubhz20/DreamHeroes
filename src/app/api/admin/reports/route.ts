@@ -3,6 +3,9 @@ import { requireRole } from "@/lib/auth";
 import { handle, ok } from "@/lib/api";
 import { computeMonthlyPoolCents } from "@/lib/draw-engine";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export const GET = handle(async () => {
   await requireRole("ADMIN");
 

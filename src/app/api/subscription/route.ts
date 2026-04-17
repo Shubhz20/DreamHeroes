@@ -10,6 +10,9 @@ import { getCurrentUser, requireRole } from "@/lib/auth";
 import { handle, ok, err } from "@/lib/api";
 import { CharityChoiceSchema } from "@/lib/validators";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export const PATCH = handle(async (req: NextRequest) => {
   await requireRole("USER");
   const user = await getCurrentUser();

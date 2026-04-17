@@ -11,6 +11,9 @@ import { getCurrentUser, requireRole } from "@/lib/auth";
 import { handle, ok, err } from "@/lib/api";
 import { stripe, isStripeConfigured } from "@/lib/stripe";
 
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export const POST = handle(async () => {
   await requireRole("USER");
   const user = await getCurrentUser();
