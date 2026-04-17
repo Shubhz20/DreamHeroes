@@ -1,0 +1,213 @@
+// -----------------------------------------------------------------------------
+// Digital Heroes — Golf / Charity / Prize Draw Platform
+// -----------------------------------------------------------------------------
+// Database schema (Prisma).
+//
+// Uses SQLite by default for zero-setup local dev. To run on Supabase /
+// Postgres in production, swap the `provider` line below to `postgresql`
+// and update DATABASE_URL. The schema is written in a portable way
+// (no provider-specific types, string-typed enums) so no further changes
+// are needed.
+// -----------------------------------------------------------------------------
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ---------- Users ----------
+// Roles: "USER" | "ADMIN" — stored as string for SQLite portability.
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("USER")
+  country      String   @default("IN") // scalability: multi-country
+  // Charity allocation
+  charityId    String?
+  charity      Charity? @relation(fields: [charityId], references: [id])
+  charityPct   Int      @default(10) // Minimum 10% per PRD
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  subscription Subscription?
+  scores       Score[]
+  winners      Winner[]
+  donations    Donation[]
+  payments     Payment[]
+
+  @@index([email])
+  @@index([role])
+}
+
+// ---------- Subscription ----------
+// Plan: "MONTHLY" | "YEARLY"
+// Status: "ACTIVE" | "CANCELED" | "LAPSED" | "PENDING"
+model Subscription {
+  id                   String    @id @default(cuid())
+  userId               String    @unique
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  plan                 String
+  status               String    @default("ACTIVE")
+  startDate            DateTime  @default(now())
+  currentPeriodEnd     DateTime
+  canceledAt           DateTime?
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  priceCents           Int
+  currency             String    @default("USD")
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  @@index([status])
+}
+
+// ---------- Scores ----------
+// Stableford scores 1..45. Exactly 5 retained per user (rolling — see logic in
+// src/lib/scores.ts). Unique (userId, playedAt) enforces "one score per date".
+model Score {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  value     Int
+  playedAt  DateTime
+  createdAt DateTime @default(now())
+
+  @@unique([userId, playedAt])
+  @@index([userId, playedAt])
+}
+
+// ---------- Charities ----------
+model Charity {
+  id           String         @id @default(cuid())
+  slug         String         @unique
+  name         String
+  tagline      String
+  description  String
+  imageUrl     String
+  heroImageUrl String?
+  category     String         @default("General")
+  isFeatured   Boolean        @default(false)
+  isActive     Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  users     User[]
+  events    CharityEvent[]
+  donations Donation[]
+
+  @@index([isFeatured])
+  @@index([isActive])
+}
+
+model CharityEvent {
+  id          String   @id @default(cuid())
+  charityId   String
+  charity     Charity  @relation(fields: [charityId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  date        DateTime
+  location    String?
+  createdAt   DateTime @default(now())
+}
+
+// ---------- Draws ----------
+// Monthly draw. winningNumbers is JSON — a sorted array of 5 ints in [1..45].
+// algorithm: "RANDOM" | "ALGORITHMIC"
+// status:    "PENDING" | "SIMULATED" | "PUBLISHED"
+model Draw {
+  id             String    @id @default(cuid())
+  month          Int
+  year           Int
+  algorithm      String    @default("RANDOM")
+  status         String    @default("PENDING")
+  winningNumbers String    @default("[]")
+  // Prize pool split (cents) — computed at simulate/publish time
+  poolTotalCents Int       @default(0)
+  pool5Cents     Int       @default(0)
+  pool4Cents     Int       @default(0)
+  pool3Cents     Int       @default(0)
+  jackpotCarry   Int       @default(0)
+  simulatedAt    DateTime?
+  publishedAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  winners Winner[]
+
+  @@unique([month, year])
+}
+
+// ---------- Winners ----------
+// verificationStatus: "PENDING" | "APPROVED" | "REJECTED"
+// payoutStatus:       "PENDING" | "PAID"
+model Winner {
+  id                 String    @id @default(cuid())
+  drawId             String
+  draw               Draw      @relation(fields: [drawId], references: [id], onDelete: Cascade)
+  userId             String
+  user               User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tier               Int // 3, 4, or 5
+  matchedCount       Int
+  matchedNumbers     String // JSON array
+  scoresSnapshot     String // JSON array of 5 scores at draw time
+  prizeCents         Int
+  verificationStatus String    @default("PENDING")
+  proofUrl           String?
+  reviewNote         String?
+  reviewedAt         DateTime?
+  payoutStatus       String    @default("PENDING")
+  paidAt             DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  @@unique([drawId, userId, tier])
+  @@index([userId])
+  @@index([verificationStatus])
+  @@index([payoutStatus])
+}
+
+// ---------- Donations (independent, not tied to gameplay) ----------
+model Donation {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  charityId String
+  charity   Charity  @relation(fields: [charityId], references: [id])
+  amountCents Int
+  currency  String   @default("USD")
+  note      String?
+  createdAt DateTime @default(now())
+}
+
+// ---------- Payments (audit trail) ----------
+// type: "SUBSCRIPTION" | "DONATION"
+model Payment {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  amountCents Int
+  currency  String   @default("USD")
+  stripeId  String?
+  note      String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([type])
+}
+
+// ---------- Platform settings (single-row) ----------
+model Settings {
+  id                Int    @id @default(1)
+  prizePoolPct      Int    @default(50) // % of subscription that funds prize pool
+  monthlyPriceCents Int    @default(1500)
+  yearlyPriceCents  Int    @default(15000)
+  defaultCurrency   String @default("USD")
+  updatedAt         DateTime @updatedAt @default(now())
+}

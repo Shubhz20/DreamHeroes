@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap");
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  @apply bg-ink-950 text-ink-100 font-sans;
+  background-image:
+    radial-gradient(1200px 600px at 80% -10%, rgba(255, 111, 16, 0.10), transparent 60%),
+    radial-gradient(900px 600px at 0% 50%, rgba(236, 74, 106, 0.07), transparent 60%),
+    radial-gradient(1200px 800px at 50% 100%, rgba(103, 92, 236, 0.08), transparent 60%);
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+/* Focus ring — warm amber accent, not the default browser blue */
+*:focus-visible {
+  outline: 2px solid theme("colors.ember.400");
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Gradient text utility used on hero headlines */
+.text-gradient {
+  background: linear-gradient(120deg, #ffd7a8 0%, #ff6f10 40%, #ec4a6a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Subtle shimmering border used on premium cards */
+.shimmer-border {
+  position: relative;
+  isolation: isolate;
+}
+.shimmer-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(120deg, rgba(255, 183, 112, 0.35), rgba(255, 111, 16, 0), rgba(236, 74, 106, 0.35));
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Scrollbar polish */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: theme("colors.ink.700"); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: theme("colors.ink.600"); }
+
+/* Stagger helper */
+.stagger > * {
+  opacity: 0;
+  animation: fade-up 0.7s ease-out forwards;
+}
+.stagger > *:nth-child(1) { animation-delay: 0.05s; }
+.stagger > *:nth-child(2) { animation-delay: 0.15s; }
+.stagger > *:nth-child(3) { animation-delay: 0.25s; }
+.stagger > *:nth-child(4) { animation-delay: 0.35s; }
+.stagger > *:nth-child(5) { animation-delay: 0.45s; }
+.stagger > *:nth-child(6) { animation-delay: 0.55s; }
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Marker / ball utility used on number displays */
+.draw-ball {
+  @apply inline-flex items-center justify-center rounded-full font-semibold;
+  @apply bg-gradient-to-br from-ember-400 to-rose-500 text-ink-950;
+  @apply shadow-lg shadow-ember-500/25;
+}
