@@ -1,8 +1,9 @@
 /**
- * Edge middleware — protects /dashboard and /admin routes.
+ * Edge proxy (formerly middleware in Next < 16) — protects /dashboard and
+ * /admin routes.
  *
- * We only verify the JWT signature here (no DB calls — middleware runs on
- * the edge where Prisma isn't available). Deeper "is-this-role" + "is-this
+ * We only verify the JWT signature here (no DB calls — proxy runs on the
+ * edge where Prisma isn't available). Deeper "is-this-role" + "is-this
  * -subscription-still-active" checks happen in the page components via
  * getCurrentUser() from /src/lib/auth.ts.
  */
@@ -11,7 +12,7 @@ import { jwtVerify } from "jose";
 
 const PUBLIC_LOGIN = "/login";
 
-export async function middleware(req: NextRequest) {
+export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
   const protectedPrefix = pathname.startsWith("/dashboard") || pathname.startsWith("/admin");
   if (!protectedPrefix) return NextResponse.next();
