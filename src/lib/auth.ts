@@ -64,7 +64,9 @@ export async function verifySessionToken(token: string): Promise<SessionPayload 
 
 /** Read the session cookie on the server and return the payload (or null). */
 export async function getSession(): Promise<SessionPayload | null> {
-  const token = cookies().get(SESSION_COOKIE)?.value;
+  // Next 15+: `cookies()` returns a Promise that must be awaited.
+  const jar = await cookies();
+  const token = jar.get(SESSION_COOKIE)?.value;
   if (!token) return null;
   return verifySessionToken(token);
 }
@@ -103,8 +105,10 @@ export class AuthError extends Error {
 }
 
 // --- Cookie management helpers used by login/logout routes.
-export function setSessionCookie(token: string) {
-  cookies().set(SESSION_COOKIE, token, {
+// Both are async because `cookies()` is a Promise in Next 15+.
+export async function setSessionCookie(token: string) {
+  const jar = await cookies();
+  jar.set(SESSION_COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
@@ -113,8 +117,9 @@ export function setSessionCookie(token: string) {
   });
 }
 
-export function clearSessionCookie() {
-  cookies().delete(SESSION_COOKIE);
+export async function clearSessionCookie() {
+  const jar = await cookies();
+  jar.delete(SESSION_COOKIE);
 }
 
 export const AUTH_CONSTANTS = { SESSION_COOKIE, SESSION_MAX_AGE };

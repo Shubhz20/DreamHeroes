@@ -74,8 +74,12 @@ export const POST = handle(async (req: NextRequest) => {
       });
     }
 
-    const appUrl =
-      process.env.NEXT_PUBLIC_APP_URL ?? req.nextUrl.origin ?? "http://localhost:3000";
+    // Prefer the explicit env var (deployment origin). Fall back to the
+    // request's own origin so previews work too. We intentionally do NOT
+    // fall back to a hardcoded localhost — that would produce broken
+    // success_url/cancel_url redirects in production.
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || req.nextUrl.origin;
+    if (!appUrl) return err("NEXT_PUBLIC_APP_URL is not configured", 500);
 
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",

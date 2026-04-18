@@ -11,10 +11,11 @@ export const dynamic = "force-dynamic";
 export default async function CharitiesPage({
   searchParams,
 }: {
-  searchParams: { q?: string; category?: string };
+  searchParams: Promise<{ q?: string; category?: string }>;
 }) {
-  const q = (searchParams.q ?? "").trim();
-  const category = (searchParams.category ?? "").trim();
+  const sp = await searchParams;
+  const q = (sp.q ?? "").trim();
+  const category = (sp.category ?? "").trim();
 
   const all = await db.charity.findMany({
     where: { isActive: true },

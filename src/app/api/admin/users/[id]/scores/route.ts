@@ -13,18 +13,20 @@ import { ScoreSchema } from "@/lib/validators";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-export const GET = handle(async (_req, ctx: { params: { id: string } }) => {
+export const GET = handle(async (_req, ctx: { params: Promise<{ id: string }> }) => {
   await requireRole("ADMIN");
+  const { id } = await ctx.params;
   const scores = await db.score.findMany({
-    where: { userId: ctx.params.id },
+    where: { userId: id },
     orderBy: { playedAt: "desc" },
   });
   return ok({ scores });
 });
 
-export const POST = handle(async (req: NextRequest, ctx: { params: { id: string } }) => {
+export const POST = handle(async (req: NextRequest, ctx: { params: Promise<{ id: string }> }) => {
   await requireRole("ADMIN");
+  const { id } = await ctx.params;
   const data = ScoreSchema.parse(await req.json());
-  const created = await addScore(ctx.params.id, data.value, data.playedAt);
+  const created = await addScore(id, data.value, data.playedAt);
   return ok({ score: created });
 });

@@ -7,23 +7,27 @@ import { ScoreUpdateSchema } from "@/lib/validators";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-export const PATCH = handle(async (req: NextRequest, ctx: { params: { id: string } }) => {
+export const PATCH = handle(async (req: NextRequest, ctx: { params: Promise<{ id: string }> }) => {
   await requireRole("USER");
+  const { id } = await ctx.params;
   const user = await getCurrentUser();
-  if (!isSubscriptionActive(user!.subscription)) {
+  if (!user) return err("Not signed in", 401);
+  if (!isSubscriptionActive(user.subscription)) {
     return err("An active subscription is required to edit scores", 402);
   }
   const data = ScoreUpdateSchema.parse(await req.json());
-  const updated = await updateScore(user!.id, ctx.params.id, data);
+  const updated = await updateScore(user.id, id, data);
   return ok({ score: updated });
 });
 
-export const DELETE = handle(async (_req: NextRequest, ctx: { params: { id: string } }) => {
+export const DELETE = handle(async (_req: NextRequest, ctx: { params: Promise<{ id: string }> }) => {
   await requireRole("USER");
+  const { id } = await ctx.params;
   const user = await getCurrentUser();
-  if (!isSubscriptionActive(user!.subscription)) {
+  if (!user) return err("Not signed in", 401);
+  if (!isSubscriptionActive(user.subscription)) {
     return err("An active subscription is required to delete scores", 402);
   }
-  await deleteScore(user!.id, ctx.params.id);
+  await deleteScore(user.id, id);
   return ok({});
 });

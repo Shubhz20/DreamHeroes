@@ -13,8 +13,9 @@ export const runtime = "nodejs";
  *   OR:   { payoutStatus: PAID }
  *   OR:   both
  */
-export const PATCH = handle(async (req: NextRequest, ctx: { params: { id: string } }) => {
+export const PATCH = handle(async (req: NextRequest, ctx: { params: Promise<{ id: string }> }) => {
   await requireRole("ADMIN");
+  const { id } = await ctx.params;
   const body = await req.json();
 
   const data: any = { reviewedAt: new Date() };
@@ -29,7 +30,7 @@ export const PATCH = handle(async (req: NextRequest, ctx: { params: { id: string
   }
 
   if (body.payoutStatus === "PAID") {
-    const existing = await db.winner.findUnique({ where: { id: ctx.params.id } });
+    const existing = await db.winner.findUnique({ where: { id: id } });
     if (!existing) return err("Winner not found", 404);
     if (existing.verificationStatus !== "APPROVED") {
       return err("Cannot mark paid until winner is APPROVED", 409);
@@ -39,7 +40,7 @@ export const PATCH = handle(async (req: NextRequest, ctx: { params: { id: string
   }
 
   const updated = await db.winner.update({
-    where: { id: ctx.params.id },
+    where: { id: id },
     data,
   });
   return ok({ winner: updated });

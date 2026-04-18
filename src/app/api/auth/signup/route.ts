@@ -80,7 +80,7 @@ export const POST = handle(async (req: NextRequest) => {
   });
 
   const token = await createSessionToken({ userId: user.id, role: user.role as any, email: user.email });
-  setSessionCookie(token);
+  await setSessionCookie(token);
 
   return ok({ id: user.id, email: user.email, role: user.role });
 });

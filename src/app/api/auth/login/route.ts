@@ -19,6 +19,6 @@ export const POST = handle(async (req: NextRequest) => {
     role: user.role as any,
     email: user.email,
   });
-  setSessionCookie(token);
+  await setSessionCookie(token);
   return ok({ id: user.id, role: user.role });
 });

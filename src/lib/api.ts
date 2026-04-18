@@ -27,8 +27,13 @@ export function handle<T extends (...args: any[]) => Promise<Response>>(fn: T) {
       if (e instanceof ScoreError) {
         return err(e.message, e.status);
       }
+      // Log the full error server-side for debugging, but only leak the
+      // message to the client in dev. In production we return a generic
+      // 500 so we don't accidentally expose internal stack traces, SQL
+      // constraint names, Stripe error shapes, etc.
       console.error("[api]", e);
-      const msg = e instanceof Error ? e.message : "Server error";
+      const isDev = process.env.NODE_ENV !== "production";
+      const msg = isDev && e instanceof Error ? e.message : "Server error";
       return err(msg, 500);
     }
   }) as T;

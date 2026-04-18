@@ -12,9 +12,10 @@ export const dynamic = "force-dynamic";
  * Charity detail page. Identified by slug (`params.id` — naming matches the
  * PRD's `[id]` convention but we treat it as the slug for URL friendliness).
  */
-export default async function CharityDetail({ params }: { params: { id: string } }) {
+export default async function CharityDetail({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const charity = await db.charity.findFirst({
-    where: { OR: [{ slug: params.id }, { id: params.id }], isActive: true },
+    where: { OR: [{ slug: id }, { id }], isActive: true },
     include: { events: { orderBy: { date: "asc" } } },
   });
   if (!charity) notFound();

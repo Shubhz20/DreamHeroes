@@ -9,8 +9,9 @@ export const dynamic = "force-dynamic";
 export default async function SignupPage({
   searchParams,
 }: {
-  searchParams: { plan?: string; charity?: string };
+  searchParams: Promise<{ plan?: string; charity?: string }>;
 }) {
+  const sp = await searchParams;
   const charities = await db.charity.findMany({
     where: { isActive: true },
     orderBy: [{ isFeatured: "desc" }, { name: "asc" }],
@@ -39,8 +40,8 @@ export default async function SignupPage({
               tagline: c.tagline,
               imageUrl: c.imageUrl,
             }))}
-            defaultPlan={(searchParams.plan as any) === "YEARLY" ? "YEARLY" : "MONTHLY"}
-            defaultCharitySlug={searchParams.charity}
+            defaultPlan={(sp.plan as any) === "YEARLY" ? "YEARLY" : "MONTHLY"}
+            defaultCharitySlug={sp.charity}
             monthlyPriceCents={settings.monthlyPriceCents}
             yearlyPriceCents={settings.yearlyPriceCents}
           />

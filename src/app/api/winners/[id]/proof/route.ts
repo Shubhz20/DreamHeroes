@@ -13,12 +13,14 @@ import { WinnerProofSchema } from "@/lib/validators";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-export const POST = handle(async (req: NextRequest, ctx: { params: { id: string } }) => {
+export const POST = handle(async (req: NextRequest, ctx: { params: Promise<{ id: string }> }) => {
   await requireRole("USER");
+  const { id } = await ctx.params;
   const user = await getCurrentUser();
+  if (!user) return err("Not signed in", 401);
   const body = WinnerProofSchema.parse(await req.json());
   const winner = await db.winner.findFirst({
-    where: { id: ctx.params.id, userId: user!.id },
+    where: { id, userId: user.id },
   });
   if (!winner) return err("Not found", 404);
   if (winner.verificationStatus === "APPROVED") {
