@@ -4,6 +4,12 @@ import Footer from "@/components/Footer";
 import { getCurrentUser, isSubscriptionActive } from "@/lib/auth";
 import Link from "next/link";
 
+// This layout reads cookies + DB on every request — it must NOT be statically
+// analyzed/prerendered at build time (doing so would drag Prisma into the
+// collectPageData phase and crash the Vercel build).
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
   if (!user) redirect("/login?next=/dashboard");
