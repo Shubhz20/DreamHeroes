@@ -6,7 +6,6 @@ export const metadata: Metadata = {
   description:
     "A subscription platform where your golf scores fund causes you believe in — and unlock monthly draw-based rewards.",
   applicationName: "Heroic",
-  themeColor: "#0f0f1f",
   openGraph: {
     title: "Heroic — Play for charity, win for impact",
     description:
@@ -18,7 +17,6 @@ export const metadata: Metadata = {
 export const viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0f0f1f",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
